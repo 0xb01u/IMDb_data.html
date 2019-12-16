@@ -6,6 +6,10 @@ function purge(array, attr, check, n) {
 	}).slice(array.length - samples);
 }
 
+function databox(d) {
+	
+}
+
 async function main() {
 	await raw;
 	data = purge(raw.slice(), indep, dep, samples);
@@ -55,6 +59,22 @@ async function main() {
 				.attr("text-anchor", "end")
 				.attr("transform", `rotate(-${samples/70 * 45})`);
 
+	let background = svg.append("g")
+		.attr("class", "bg");
+	for (let d of data) {
+		let names = background.append("g")
+			.attr("id", d.ID)
+			.attr("transform", "rotate(-90)");
+		names.append("text")
+			.attr("y", x(d[indep]) + x.bandwidth() / 2 + 5)
+			.attr("x", -height + x.bandwidth() / 4)
+			.attr("font-family", "verdana")
+			.attr("font-size", `${Math.min(30/samples * 22, 22)}px`)
+			.attr("fill", "#999999")
+			.text(d.title)
+			.on("click", _ => window.open(url + d.ID));
+	}
+
 	svg.selectAll(".bar")
 		.data(data)
 		.enter().append("rect")
@@ -63,7 +83,8 @@ async function main() {
 		.attr("width", x.bandwidth())
 		.attr("y", d => { return y(d[dep]); })
 		.attr("height", d => { return height - y(d[dep]) })
-		.attr("fill", "orange");
+		.attr("fill", "lime")
+		.on("click", d => window.open(url + d.ID));;
 
 	labels = svg.append("g")
 		.attr("class", "labels");
@@ -73,22 +94,36 @@ async function main() {
 		.attr("font-size", "26px")
 		.attr("transform", "rotate(-90)")
 		.attr("text-anchor", "middle")
+		.attr("font-family", "verdana")
 		.text(text_labels[dep]);
 	labels.append("text")
 		.attr("y", height + 50 + (samples/70 * 10))
 		.attr("x", width / 2)
 		.attr("font-size", "26px")
 		.attr("text-anchor", "middle")
+		.attr("font-family", "verdana")
 		.text(text_labels[indep]);
 
 	for (let d of data) {
-		labels.append("text")
+		let names = labels.append("g")
+			.attr("id", d.ID)
+			.attr("transform", "rotate(-90)");
+		names.append("clipPath")
+			.attr("id", `clip${d.ID}`)
+			.append("rect")
+				.attr("y", x(d[indep]))
+				.attr("x", -height)
+				.attr("height", x.bandwidth())
+				.attr("width", height - y(d[dep]));
+		names.append("text")
 			.attr("y", x(d[indep]) + x.bandwidth() / 2 + 5)
-			.attr("x", -height + x.bandwidth() / 2)
-			.attr("transform", "rotate(-90)")
-			.attr("font-weight", "bold")
-			.attr("font-size", `${Math.min(30/samples * 24, 26)}px`)
-			.text(d.title);
+			.attr("x", -height + x.bandwidth() / 4)
+			//.attr("font-weight", "bold")
+			.attr("font-family", "verdana")
+			.attr("font-size", `${Math.min(30/samples * 22, 22)}px`)
+			.text(d.title)
+			.attr("style", `clip-path: url(#clip${d.ID})`)
+			.on("click", _ => window.open(url + d.ID));;
 	}
 }
 

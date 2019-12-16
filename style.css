@@ -1,6 +1,6 @@
 body {
 	height: 900px;
-	width: 1600px;
+	width: 1800px;
 	margin: 0px;
 	padding: 0px;
 	overflow: hidden;
@@ -8,5 +8,5 @@ body {
 
 #svg_main {
 	height: 800px;
-	width: 1400px;
+	width: 1600px;
 }
