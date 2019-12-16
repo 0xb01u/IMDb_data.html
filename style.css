@@ -1,0 +1,12 @@
+body {
+	height: 900px;
+	width: 1600px;
+	margin: 0px;
+	padding: 0px;
+	overflow: hidden;
+}
+
+#svg_main {
+	height: 800px;
+	width: 1400px;
+}
