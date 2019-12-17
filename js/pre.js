@@ -12,14 +12,21 @@ var text_labels = {
 	"worldwide_gross": "Recaudación (millones de $)"
 };
 
+function color(year) {
+	let r = ("00" + (0xff - parseInt(Math.min(35, year - 1950)*(255/35))).toString(16)).substr(-2);
+	let g = ("00" + (parseInt(Math.min(35, year - 1915)*(255/35))).toString(16)).substr(-2);
+	let b = ("00" + (parseInt(Math.min(35, year - 1984)*(255/35))).toString(16)).substr(-2);
+	return `#${r}${g}${b}`
+}
+
 var url = "https://www.imdb.com/title/";
 
-var margin = { top: 100, right: 100, bottom: 100, left: 100 },
-	color = d3.scaleOrdinal(d3.schemePaired);	// 6 paired colors.
-
-var samples = 30;
+var margin = { top: 100, right: 190, bottom: 150, left: 100 };
+var samples = 10;
 var indep = "worldwide_gross";
-var dep = "runtime";
+var dep = "budget";
+
+var load = 2000;	// ms for the "load" animation.
 
 // Data reading:
 var raw = d3.tsv(datapath)
