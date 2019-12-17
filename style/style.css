@@ -20,6 +20,13 @@ div.tooltip {
 	border: 1px solid #0062E8;
 }
 
+div.legend {
+	position: absolute;
+	text-align: left;
+	font: 14px verdana;
+	border: 1px solid black;
+}
+
 #svg_main {
 	height: 100%;
 	width: 100%;

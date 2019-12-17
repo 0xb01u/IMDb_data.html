@@ -7,24 +7,26 @@ var text_labels = {
 	"rating": "Valoración sobre 10",
 	"votes": "Cantidad de valoraciones (miles)",
 	"budget": "Presupuesto (millones de $)",
-	"opening_weekend_usa": "Recaudación USA primer fin de semana (mill de $)",
+	"opening_weekend_usa": "Recaudación USA primer fin de semana (mill$)",
 	"gross_usa": "Recaudación en USA (millones de $)",
 	"worldwide_gross": "Recaudación (millones de $)"
 };
 
-function color(year) {
-	let r = ("00" + (0xff - parseInt(Math.min(35, year - 1950)*(255/35))).toString(16)).substr(-2);
-	let g = ("00" + (parseInt(Math.min(35, year - 1915)*(255/35))).toString(16)).substr(-2);
-	let b = ("00" + (parseInt(Math.min(35, year - 1984)*(255/35))).toString(16)).substr(-2);
+function color(year, min, max) {
+	let diff = max - min;
+	num = i => parseInt(Math.min(diff/2, Math.max(0, year - (min + diff * i/2)))*(0xff * 2/diff));
+	let r = ("00" + (0xff - num(0)).toString(16)).substr(-2);
+	let g = "ff"
+	let b = ("00" + num(1).toString(16)).substr(-2);
 	return `#${r}${g}${b}`
 }
 
 var url = "https://www.imdb.com/title/";
 
-var margin = { top: 100, right: 190, bottom: 150, left: 100 };
-var samples = 10;
-var indep = "worldwide_gross";
-var dep = "budget";
+var margin = { top: 70, right: 190, bottom: 200, left: 100 };
+var samples = 30;
+var indep = "opening_weekend_usa";
+var dep = "worldwide_gross";
 
 var load = 2000;	// ms for the "load" animation.
 
