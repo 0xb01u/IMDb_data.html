@@ -7,7 +7,7 @@ var text_labels = {
 	"rating": "Valoración sobre 10",
 	"votes": "Cantidad de valoraciones (miles)",
 	"budget": "Presupuesto (millones de $)",
-	"opening_weekend_usa": "Recaudación USA primer fin de semana (mill$)",
+	"opening_weekend_usa": "Recaudación USA 1er fin de semana (mill $)",
 	"gross_usa": "Recaudación en USA (millones de $)",
 	"worldwide_gross": "Recaudación (millones de $)"
 };
@@ -25,8 +25,8 @@ var url = "https://www.imdb.com/title/";
 
 var margin = { top: 70, right: 190, bottom: 200, left: 100 };
 var samples = 30;
-var indep = "opening_weekend_usa";
-var dep = "worldwide_gross";
+var indep = "worldwide_gross";
+var dep = "rating";
 
 var load = 2000;	// ms for the "load" animation.
 

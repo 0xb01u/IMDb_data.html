@@ -31,3 +31,25 @@ div.legend {
 	height: 100%;
 	width: 100%;
 }
+
+#controls {
+	position: relative;
+	left: 100px;
+	top: -120px;
+}
+
+#controls > #select_dep {
+	width: 20%;
+	margin-top: 0px;
+	margin-left: 14px;
+	background-color: #e8e8e8e8;
+	color: black;
+}
+
+#controls > #select_indep {
+	width: 20%;
+	margin-top: 0px;
+	margin-left: 0px;
+	background-color: #e8e8e8e8;
+	color: black;
+}

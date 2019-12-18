@@ -1,3 +1,7 @@
+function getKeyByValue(obj, v) {
+	return Object.keys(obj).find(key => obj[key] === v);
+}
+
 function purge(array, attr, check, n) {
 	return array.sort((a, b) => {
 		if (isNaN(a[attr]) || isNaN(a[check])) return -1;
@@ -12,7 +16,7 @@ function databox(d) {
 		.transition()
 		.duration(250)
 		.style("opacity", 1);
-	tooltip.html(`<big><b>${d.title}</b></big><br><p align="left"><b>Año: </b>${d.year}<b><br>${text_labels[dep]}: </b>${d[dep]}<br><b>${text_labels[indep]}: </b>${d[indep]}</p><b>Haz click para acceder a su página de IMDb.</b>`)
+	tooltip.html(`<big><b>${d.title}</b></big><br><p align="left"><b>Año: </b>${d.year}<b><br>${text_labels[indep]}: </b>${d[indep]}<br><b>${text_labels[dep]}: </b>${d[dep]}</p><b>Haz click para acceder a su página de IMDb.</b>`)
 		.style("left", `${d3.event.pageX}px`)
 		.style("top", `${d3.event.pageY + 10}px`);
 
@@ -25,15 +29,27 @@ function undatabox(d) {
 		.duration(250)
 		.style("opacity", 0);
 
-	svg.select(`.bar#${d.ID}`).attr("stroke", "black");
+	svg.select(`.bar#${d.ID}`).attr("stroke", "#444444");
+}
+
+function dep_change() {
+	dep = getKeyByValue(text_labels, document.getElementById("select_dep").value);
+	d3.select("#svg_main").select("g").remove();
+	svg = d3.select("#svg_main");
+	main();
+}
+
+function indep_change() {
+	indep = getKeyByValue(text_labels, document.getElementById("select_indep").value);
+	d3.select("#svg_main").select("g").remove();
+	svg = d3.select("#svg_main");
+	main();
 }
 
 async function main() {
+	console.log("a");
 	await raw;
 	data = purge(raw.slice(), indep, dep, samples);
-
-	var height = parseInt(svg.style("height")) - margin.top - margin.bottom,
-		width = parseInt(svg.style("width")) - margin.left - margin.right;
 
 	svg = svg.append("g")
 		.attr("transform", `translate(${margin.left}, ${margin.top})`)
@@ -106,7 +122,7 @@ async function main() {
 		.attr("y", height)
 		.attr("height", 0)
 		.attr("fill", d => { return color(d.year, d3.min(data.map(e => { return e.year; })), d3.max(data.map(e => { return e.year; }))); })
-		.attr("stroke", "black")
+		.attr("stroke", "#444444")
 		.attr("stroke-width", 3)
 		.on("click", d => window.open(url + d.ID))
 		.on("mouseover", databox)
@@ -224,8 +240,41 @@ async function main() {
 
 var svg = d3.select("#svg_main");
 
+var height = parseInt(svg.style("height")) - margin.top - margin.bottom,
+	width = parseInt(svg.style("width")) - margin.left - margin.right;
+
 var tooltip = d3.select("body").append("div")
 	.attr("class", "tooltip")
 	.style("opacity", 0);
+
+d3.select("body").append("div")
+	.attr("id", "controls")
+	.append("h")
+		.style("font-family", "verdana")
+		.text("Variable dependiente (y): ")
+var selector_dep = d3.select("#controls").append("select")
+	.attr("id", "select_dep")
+	.attr("onchange", "dep_change()");
+for (let d in text_labels) {
+	if (d != "year") {
+		let o = selector_dep.append("option");
+		if (d == "rating") o.attr("selected", "selected");
+		o.text(text_labels[d]);
+	}
+}
+
+d3.select("#controls").append("br")
+
+d3.select("#controls").append("h")
+	.style("font-family", "verdana")
+	.text("Variable independiente (x): ")
+var selector_indep = d3.select("#controls")	
+	.append("select")
+	.attr("id", "select_indep")
+	.attr("onchange", "indep_change()");
+selector_indep.append("option").text(text_labels.votes);
+selector_indep.append("option").text(text_labels.opening_weekend_usa);
+selector_indep.append("option").text(text_labels.gross_usa);
+selector_indep.append("option").attr("selected", "selected").text(text_labels.worldwide_gross);
 
 main();
