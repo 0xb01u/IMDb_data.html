@@ -34,8 +34,8 @@ div.legend {
 
 #controls {
 	position: relative;
-	left: 100px;
-	top: -120px;
+	left: 80px;
+	top: -130px;
 }
 
 #controls > #select_dep {
@@ -52,4 +52,8 @@ div.legend {
 	margin-left: 0px;
 	background-color: #e8e8e8e8;
 	color: black;
+}
+
+form {
+	display: inline-block;
 }

@@ -22,12 +22,12 @@ function color(year, min, max) {
 }
 
 var url = "https://www.imdb.com/title/";
-
 var margin = { top: 70, right: 190, bottom: 200, left: 100 };
-var samples = 30;
+var samples = 25;
+var year_low = 1915;
+var year_high = 2019;
 var indep = "worldwide_gross";
 var dep = "rating";
-
 var load = 2000;	// ms for the "load" animation.
 
 // Data reading:

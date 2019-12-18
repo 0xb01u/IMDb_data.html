@@ -2,7 +2,8 @@ function getKeyByValue(obj, v) {
 	return Object.keys(obj).find(key => obj[key] === v);
 }
 
-function purge(array, attr, check, n) {
+function purge(arr, attr, check, n) {
+	array = arr.slice()
 	return array.sort((a, b) => {
 		if (isNaN(a[attr]) || isNaN(a[check])) return -1;
 		if (isNaN(b[attr]) || isNaN(b[check])) return 1;
@@ -46,8 +47,26 @@ function indep_change() {
 	main();
 }
 
+function resample() {
+	let t_samples = document.getElementById("in_samples").value;
+	let t_low = document.getElementById("in_year_low").value;
+	let t_high = document.getElementById("in_year_high").value;
+
+	console.log(t_samples, t_low, t_high);
+	
+	if (isNan(t_samples)) d3.select("#in_samples").attr("value", samples);
+	if (isNaN(t_low) || t_low < 1915) d3.select("#in_year_low").attr("value", year_low);
+	if (isNaN(t_high) || t_high > 2019) d3.select("#in_year_high").attr("value", year_high);
+	if (!isNaN(t_low) && isNaN(t_high) && t_low > t_high) {
+		d3.select("#in_year_low").attr("value", year_low);
+		d3.select("#in_year_high").attr("value", year_high);
+	}
+	svg = d3.select("#svg_main");
+
+	return false;
+}
+
 async function main() {
-	console.log("a");
 	await raw;
 	data = purge(raw.slice(), indep, dep, samples);
 
@@ -247,12 +266,12 @@ var tooltip = d3.select("body").append("div")
 	.attr("class", "tooltip")
 	.style("opacity", 0);
 
-d3.select("body").append("div")
-	.attr("id", "controls")
-	.append("h")
+var control = d3.select("body").append("div")
+	.attr("id", "controls");
+control.append("h")
 		.style("font-family", "verdana")
-		.text("Variable dependiente (y): ")
-var selector_dep = d3.select("#controls").append("select")
+		.text("Variable dependiente (y): ");
+var selector_dep = control.append("select")
 	.attr("id", "select_dep")
 	.attr("onchange", "dep_change()");
 for (let d in text_labels) {
@@ -263,18 +282,61 @@ for (let d in text_labels) {
 	}
 }
 
-d3.select("#controls").append("br")
-
-d3.select("#controls").append("h")
+control.append("br");
+control.append("h")
 	.style("font-family", "verdana")
-	.text("Variable independiente (x): ")
-var selector_indep = d3.select("#controls")	
-	.append("select")
+	.text("Variable independiente (x): ");
+var selector_indep = control.append("select")
 	.attr("id", "select_indep")
 	.attr("onchange", "indep_change()");
 selector_indep.append("option").text(text_labels.votes);
 selector_indep.append("option").text(text_labels.opening_weekend_usa);
 selector_indep.append("option").text(text_labels.gross_usa);
 selector_indep.append("option").attr("selected", "selected").text(text_labels.worldwide_gross);
+
+control.append("br");
+control.append("h")
+	.style("font-family", "verdana")
+	.text("Número de muestras: ");
+var in_samples = control.append("form")
+	.style("margin-left", "3px")
+	.attr("name", "samples")
+	.attr("onSubmit", "resample()");
+in_samples.append("input")
+	.attr("id", "in_samples")
+	.attr("type", "text")
+	.attr("size", 1)
+	.attr("maxlength", 3)
+	.attr("value", samples);
+in_samples.append("input")
+	.attr("type", "submit")
+	.attr("name", "submit")
+	.attr("value", "OK");
+
+control.append("br");
+control.append("h")
+	.style("font-family", "verdana")
+	.text("Rango de años: ");
+var years = control.append("form")
+	.attr("name", "years")
+	.attr("onSubmit", "resample()");
+years.append("input")
+	.attr("id", "in_year_low")
+	.attr("type", "text")
+	.attr("size", 1)
+	.attr("maxlength", 4)
+	.attr("value", year_low);
+years.append("h")
+	.text(" - ");
+years.append("input")
+	.attr("id", "in_year_high")
+	.attr("type", "text")
+	.attr("size", 1)
+	.attr("maxlength", 4)
+	.attr("value", year_high);
+years.append("input")
+	.attr("type", "submit")
+	.attr("name", "submit")
+	.attr("value", "OK");
 
 main();
