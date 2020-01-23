@@ -1,5 +1,5 @@
 // Constants declaration:
-var datapath = "../data/movies.tsv";	// TSV path.
+var datapath = "data/movies.tsv";	// TSV path.
 var legend = ["ID", "title", "year", "runtime", "rating", "votes", "budget", "opening_weekend_usa", "gross_usa", "worldwide_gross", "genres"];
 var text_labels = {
 	"year": "Año",
@@ -14,6 +14,7 @@ var text_labels = {
 
 function color(year, min, max) {
 	let diff = max - min;
+	diff = diff ? diff : 1;
 	num = i => parseInt(Math.min(diff/2, Math.max(0, year - (min + diff * i/2)))*(0xff * 2/diff));
 	let r = ("00" + (0xff - num(0)).toString(16)).substr(-2);
 	let g = "ff"

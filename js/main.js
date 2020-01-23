@@ -3,7 +3,7 @@ function getKeyByValue(obj, v) {
 }
 
 function purge(arr, attr, check, n) {
-	array = arr.slice()
+	array = arr.filter(d => d.year >= year_low && d.year <= year_high);
 	return array.sort((a, b) => {
 		if (isNaN(a[attr]) || isNaN(a[check])) return -1;
 		if (isNaN(b[attr]) || isNaN(b[check])) return 1;
@@ -12,7 +12,11 @@ function purge(arr, attr, check, n) {
 }
 
 function databox(d) {
-	tooltip.raise();
+	var tooltip = d3.select("body").append("div")
+		.attr("class", "tooltip")
+		.attr("id", "tooltip")
+		.style("opacity", 0)
+		.raise();
 	tooltip.style("opacity", 0)
 		.transition()
 		.duration(250)
@@ -25,11 +29,7 @@ function databox(d) {
 }
 
 function undatabox(d) {
-	tooltip.style("opacity", 1)
-		.transition()
-		.duration(250)
-		.style("opacity", 0);
-
+	d3.select("#tooltip").remove();
 	svg.select(`.bar#${d.ID}`).attr("stroke", "#444444");
 }
 
@@ -48,20 +48,29 @@ function indep_change() {
 }
 
 function resample() {
-	let t_samples = document.getElementById("in_samples").value;
-	let t_low = document.getElementById("in_year_low").value;
-	let t_high = document.getElementById("in_year_high").value;
+	let s = document.getElementById("in_samples");
+	let l = document.getElementById("in_year_low");
+	let h = document.getElementById("in_year_high");
 
-	console.log(t_samples, t_low, t_high);
+	let t_samples = s.value;
+	let t_low = l.value;
+	let t_high = h.value;
 	
-	if (isNan(t_samples)) d3.select("#in_samples").attr("value", samples);
-	if (isNaN(t_low) || t_low < 1915) d3.select("#in_year_low").attr("value", year_low);
-	if (isNaN(t_high) || t_high > 2019) d3.select("#in_year_high").attr("value", year_high);
+	if (isNaN(t_samples) || t_samples < 1) s.value = samples;
+	if (isNaN(t_low) || t_low < 1915) l.value = year_low;
+	if (isNaN(t_high) || t_high > 2019) h.value = year_high;
 	if (!isNaN(t_low) && isNaN(t_high) && t_low > t_high) {
-		d3.select("#in_year_low").attr("value", year_low);
-		d3.select("#in_year_high").attr("value", year_high);
+		l.value = year_low;
+		h.value = year_high;
 	}
+	d3.select("#svg_main").select("g").remove();
+
+	samples = s.value;
+	year_low = l.value;
+	year_high = h.value;
+
 	svg = d3.select("#svg_main");
+	main();
 
 	return false;
 }
@@ -254,6 +263,18 @@ async function main() {
 			.attr("y", `${1.2*height + 50}px`)
 			.attr("height", 25)
 			.attr("fill", color(d, dates[0], dates[dates.length - 1]));
+
+
+	var title = svg.append("g")
+		.attr("class", "title")
+	title.append("text")
+		.attr("x", (width / 2))
+		.attr("y", -40)
+		.attr("text-anchor", "middle")
+		.attr("font-family", "verdana")
+		.attr("font-size", "26px")
+		.attr("font-weight", "bold")
+		.text("IMDb interactivo");
 	}
 }
 
@@ -261,10 +282,6 @@ var svg = d3.select("#svg_main");
 
 var height = parseInt(svg.style("height")) - margin.top - margin.bottom,
 	width = parseInt(svg.style("width")) - margin.left - margin.right;
-
-var tooltip = d3.select("body").append("div")
-	.attr("class", "tooltip")
-	.style("opacity", 0);
 
 var control = d3.select("body").append("div")
 	.attr("id", "controls");
@@ -301,7 +318,6 @@ control.append("h")
 var in_samples = control.append("form")
 	.style("margin-left", "3px")
 	.attr("name", "samples")
-	.attr("onSubmit", "resample()");
 in_samples.append("input")
 	.attr("id", "in_samples")
 	.attr("type", "text")
@@ -309,8 +325,9 @@ in_samples.append("input")
 	.attr("maxlength", 3)
 	.attr("value", samples);
 in_samples.append("input")
-	.attr("type", "submit")
-	.attr("name", "submit")
+	.attr("type", "button")
+	.attr("name", "submit")	
+	.attr("onclick", "return resample()")
 	.attr("value", "OK");
 
 control.append("br");
@@ -319,7 +336,6 @@ control.append("h")
 	.text("Rango de años: ");
 var years = control.append("form")
 	.attr("name", "years")
-	.attr("onSubmit", "resample()");
 years.append("input")
 	.attr("id", "in_year_low")
 	.attr("type", "text")
@@ -335,8 +351,9 @@ years.append("input")
 	.attr("maxlength", 4)
 	.attr("value", year_high);
 years.append("input")
-	.attr("type", "submit")
-	.attr("name", "submit")
+	.attr("type", "button")
+	.attr("name", "submit")	
+	.attr("onclick", "return resample()")
 	.attr("value", "OK");
 
 main();
