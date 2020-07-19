@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup as bs
 import requests as req, re
+import math
 
 header = "https://www.imdb.com/title/"
 ALL = "movies.tsv"	# Dataset with data for all the movies.
@@ -7,11 +8,11 @@ FINAL = "movies.tsv"# Dataset with data for the movies finally used.
 YEAR = 2000	# Value to limit the total number of movies in the final file by its year.
 
 # Fetching the general data for the movies:
-data = open("/title.basics.tsv/data.tsv", "r", encoding="utf-8").readlines()[1:]
+data = open("./title.basics.tsv/data.tsv", "r", encoding="utf-8").readlines()[1:]
 
 # Fetching the ratings (and votes) for the movies:
 ratings = {}
-for movie in open("/title.ratings.tsv/data.tsv", "r").readlines()[:-1]:
+for movie in open("./title.ratings.tsv/data.tsv", "r").readlines()[:-1]:
 	field = movie.split("\t")
 	ratings[field[0]] = { (field[1], field[2][:-1]) }
 
@@ -52,7 +53,7 @@ for  movie in data:
 	mean_votes += int(field[-2])
 
 mean_votes /= len(data)
-print("Mean of number of votes " + str(mean_votes))
+print("Mean number of votes " + str(mean_votes))
 
 for movie in data:
 	field = movie.split("\t")
@@ -65,9 +66,21 @@ print("Remaining films = " + str(len(purged)))
 
 print("Fetching budget and grossings")
 
+print()
+
 # For the final movies, its IMDb's page is downloaded and the money data is added.
 out.write("ID\ttitle\tyear\truntime\trating\tvotes\tbudget\topening_weekend_usa\tgross_usa\tworldwide_gross\tgenres\n")
+progress = 0
+last_progress = -1
 for used in purged:
+	progress += 1
+
+	# Percentage print:
+	percentage = math.floor((progress*100)/len(purged))
+	if last_progress != percentage:
+		print(f"{percentage}%")
+		last_progress = percentage
+
 	field = used.split("\t")	
 
 	webpage = req.get(header + field[0])		# Page for each movie.
@@ -77,7 +90,11 @@ for used in purged:
 	pageData = html.find(id="wrapper").find(id="root").find(id="pagecontent").find(id="content-2-wide").find(id="main_bottom").find(id="titleDetails")#.find_all("div", "txt-block")
 	moneyParents = [page.find_parent("div", "txt-block") for page in pageData.find_all(string=re.compile("[$]"))]
 	moneyDesc = [re.search(">(.*):<", str(child)).group(1) for moneyParent in moneyParents for child in moneyParent.find_all("h4", "inline")]
-	moneyData = [int(child.replace('$', '').replace(',', '')) for moneyParent in moneyParents for child in moneyParent.find_all(string=re.compile("[$]"))]
+	try:
+		moneyData = [int(child.replace('$', '').replace(',', '')) for moneyParent in moneyParents for child in moneyParent.find_all(string=re.compile("[$]"))]
+	except Exception as e:
+		print(f"ERROR: Couldn't fetch budget and grossings for {header + field[0]}:{field[1]} - {e}.")
+		continue
 
 	#print(moneyDesc) # ['Budget', 'Opening Weekend USA', 'Gross USA', 'Cumulative Worldwide Gross']
 	#print(moneyData) # [48000000, 9725408, 47121859, 76019048]
@@ -101,4 +118,4 @@ for used in purged:
 			out.write(e)
 			if field[-1] != e: out.write("\t")
 
-print("Done!")
+print("100%\n\nDone!")
